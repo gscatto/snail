@@ -7,6 +7,8 @@
 
 void Snail_assert(bool result, const char *assertion, const char *file, int line);
 
+void Snail_executeTest(void (*test)());
+
 #ifdef SNAIL_MAIN
 #include <stdlib.h>
 #include <stdio.h>
