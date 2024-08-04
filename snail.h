@@ -12,6 +12,8 @@ void Snail_executeTest(void (*test)());
 
 void Snail_pushSetUpHook(void (*hook)(void));
 void Snail_popSetUpHook();
+void Snail_pushTearDownHook(void (*hook)(void));
+void Snail_popTearDownHook();
 
 #ifdef SNAIL_MAIN
 #include <stdio.h>
@@ -31,6 +33,21 @@ void Snail_popSetUpHook() {
 void Snail_runSetUpHook() {
   if (Snail_setUpHook)
     Snail_setUpHook();
+}
+
+static void (*Snail_tearDownHook)(void) = NULL;
+
+void Snail_pushTearDownHook(void (*hook)(void)) {
+  Snail_tearDownHook = hook;
+}
+
+void Snail_popTearDownHook() {
+  Snail_tearDownHook = NULL;
+}
+
+void Snail_runTearDownHook() {
+  if (Snail_tearDownHook)
+    Snail_tearDownHook();
 }
 
 static int Snail_assertionsCount = 0;
@@ -90,6 +107,7 @@ void Snail_executeTest(void (*test)()) {
   Snail_currentFailedAssertionsCount = 0;
   Snail_runSetUpHook();
   test();
+  Snail_runTearDownHook();
   if (Snail_currentFailedAssertionsCount == 0)
     Snail_passedTestsCount++;
   else
