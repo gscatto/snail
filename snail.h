@@ -10,10 +10,28 @@ void Snail_error(const char *file, int line, const char *format, ...);
 
 void Snail_executeTest(void (*test)());
 
+void Snail_pushSetUpHook(void (*hook)(void));
+void Snail_popSetUpHook();
+
 #ifdef SNAIL_MAIN
-#include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
+#include <stdlib.h>
+
+static void (*Snail_setUpHook)(void) = NULL;
+
+void Snail_pushSetUpHook(void (*hook)(void)) {
+  Snail_setUpHook = hook;
+}
+
+void Snail_popSetUpHook() {
+  Snail_setUpHook = NULL;
+}
+
+void Snail_runSetUpHook() {
+  if (Snail_setUpHook)
+    Snail_setUpHook();
+}
 
 static int Snail_assertionsCount = 0;
 static int Snail_currentFailedAssertionsCount = 0;
@@ -70,6 +88,7 @@ static void Snail_printTestSuiteResults() {
 
 void Snail_executeTest(void (*test)()) {
   Snail_currentFailedAssertionsCount = 0;
+  Snail_runSetUpHook();
   test();
   if (Snail_currentFailedAssertionsCount == 0)
     Snail_passedTestsCount++;
