@@ -6,6 +6,7 @@
 #define SNAIL_ASSERT(assertion) do { Snail_assert(assertion, #assertion, __FILE__, __LINE__); } while(0)
 
 void Snail_assert(bool result, const char *assertion, const char *file, int line);
+void Snail_error(const char *file, int line, const char *format, ...);
 
 void Snail_executeTest(void (*test)());
 
@@ -25,6 +26,13 @@ static int Snail_testsCount = 0;
 void Snail_errorArgs(const char *file, int line, const char *format, va_list args) {
   fprintf(stderr, "%s:%d: error: ", file, line);
   vfprintf(stderr, format, args);
+}
+
+void Snail_error(const char *file, int line, const char *format, ...) {
+  va_list args;
+  va_start(args, format);
+  Snail_errorArgs(file, line, format, args);
+  va_end(args);
 }
 
 void Snail_addPassedAssertion() {
