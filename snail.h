@@ -9,6 +9,7 @@ void Snail_assert(bool result, const char *assertion, const char *file, int line
 void Snail_error(const char *file, int line, const char *format, ...);
 
 void Snail_executeTest(void (*test)());
+void Snail_skipTest(void (*test)());
 
 void Snail_pushSetUpHook(void (*hook)(void));
 void Snail_popSetUpHook();
@@ -56,6 +57,7 @@ static int Snail_failedAssertionsCount = 0;
 static int Snail_failedTestsCount = 0;
 static int Snail_passedAssertionsCount = 0;
 static int Snail_passedTestsCount = 0;
+static int Snail_skippedTestsCount = 0;
 static int Snail_testsCount = 0;
 
 void Snail_errorArgs(const char *file, int line, const char *format, va_list args) {
@@ -99,8 +101,8 @@ static bool Snail_didTestSuitePass() {
 static void Snail_printTestSuiteResults() {
   printf("%d assertions run: %d passed, %d failed.\n",
 	 Snail_assertionsCount, Snail_passedAssertionsCount, Snail_failedAssertionsCount);
-  printf("%d tests run: %d passed, %d failed.\n",
-	 Snail_testsCount, Snail_passedTestsCount, Snail_failedTestsCount);
+  printf("%d tests: %d passed, %d failed, %d skipped.\n",
+	 Snail_testsCount, Snail_passedTestsCount, Snail_failedTestsCount, Snail_skippedTestsCount);
 }
 
 void Snail_executeTest(void (*test)()) {
@@ -112,6 +114,11 @@ void Snail_executeTest(void (*test)()) {
     Snail_passedTestsCount++;
   else
     Snail_failedTestsCount++;
+  Snail_testsCount++;
+}
+
+void Snail_skipTest(void (*test)()) {
+  Snail_skippedTestsCount++;
   Snail_testsCount++;
 }
 
